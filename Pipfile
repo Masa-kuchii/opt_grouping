@@ -10,6 +10,7 @@ streamlit = "streamlit run app.py"
 simanneal = "*"
 streamlit = "*"
 pandas = "*"
+numpy = "*"
 
 [dev-packages]
 flake8 = "*"
