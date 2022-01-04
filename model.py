@@ -2,6 +2,9 @@ from simanneal import Annealer
 from copy import deepcopy
 from collections import defaultdict
 from random import choice
+import streamlit as st
+import app
+
 
 class GroupingProblem(Annealer):
     def __init__(self, init_state, num_same_team, num_team, num_members, members):
@@ -115,35 +118,27 @@ def record_num_same_team(num_same_team, team_to_member):
     return num_same_team_next
 
 
-def visualize_group(members, state_1):
-  team_bangou = 0
-  for team in state_1:
-    team_bangou += 1
-    print("ルーム",  team_bangou)
-    for id in team:
-      print(" ", members[id][0])
+def visualize_group(members, state_1, num_split_screen=3):
+    team_bangou = 0
+    for team in state_1:
+        team_bangou += 1
+        st.write("ルーム" + str(team_bangou), unsafe_allow_html=True)
+        for id in team:
+            st.write(" ", members[id][0])
 
 
-def main():
-    members = [
-           ["大西さん", "1"],
-           ["是永さん", "1"],
-           ["小林さん", "3"],
-           ["寺田さん", "3"],
-           ["三木さん", "0"],
-           ["岡村さん", "0"],
-           ["秋田さん", "0"],
-           ["香川さん", "0"],
-           ["口井", "2"],
-           ["國政さん", "0"],
-           ["手塚さん", "2"],
-           ["花牟禮さん", "0"],
-           ["手島さん", "0"],
-           ["宮川さん", "0"],
-           ]
+def main(df, setting):
+    # 設定
+    df[app.VIP] = 0
+    if app.VIP in setting.keys():
+        for vip in setting[app.VIP]:
+            df.loc[df[setting[app.NAME_COL]]==vip, app.VIP] = 1
+    cols = [setting[app.NAME_COL], app.VIP] + [col for col in df.columns if col not in [setting[app.NAME_COL], app.VIP]]
+    df = df.reindex(columns=cols)
+    members = df.to_numpy().tolist()
     num_members = len(members)
-    num_team = 3
-    num_session = 3
+    num_team = setting[app.NUM_GROUP]
+    num_session = setting[app.NUM_SESSION]
     member_team = [ i % num_team for i in range(num_members)]
     num_same_team = [[0]*num_members for _ in range(num_members)]
     # 各チームのメンバー
@@ -154,9 +149,14 @@ def main():
         team_to_member[member_team[i]].append(i)
         department_count_by_team[member_team[i]][members[i][1]] += 1
     init_state = [member_team, team_to_member, department_count_by_team]
-
+    status_text = st.empty()
+    progress_bar = st.progress(0)
+    result = {}
+    # 最適化計算実行
     for i in range(num_session):
-        print(i+1, "回目")
+        percent = int(100/num_session*(i+1))
+        status_text.text(f"Progress: {percent}%")
+        progress_bar.progress(percent)
         prob = GroupingProblem(init_state, num_same_team, num_team, num_members, members)
         if (i==2):
             prob.steps = 10**5
@@ -165,10 +165,10 @@ def main():
         prob.copy_strategy = "deepcopy"
         state, e = prob.anneal()
         num_same_team = record_num_same_team(num_same_team, prob.state[1])
-        visualize_group(members,  state[1])
-        print("")
-        print("")      
-        print(members)
+        result[str(i+1)] = state[1]
+    status_text.text('Done!')
+    st.balloons()
+    return (members, result)
 
 if __name__ == "__main__":
     main()
