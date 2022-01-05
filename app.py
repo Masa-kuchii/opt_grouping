@@ -30,13 +30,11 @@ def input_data() -> pd.DataFrame:
     )
     st.write(sample_df)
     f = st.file_uploader(label="", type = "csv")
-    # st.write("アップロードされたファイル", f)
-    # df = pd.read_csv(f, index = None)
     if f is not None:
         uploaded_df = pd.read_csv(f)
         st.dataframe(uploaded_df.head(20), width = 1000, height = 1000)
         return uploaded_df
-    # TODD:ファイル形式の例外処理、NA処理    
+    # TODO: ファイル形式の例外処理、NA処理    
     return None
 
 
@@ -62,6 +60,7 @@ def pre_process(data: pd.DataFrame):
         mem_list = list(data[inp_name_col].unique())
         setting[NAME_COL] = inp_name_col
         #　重み設定
+        # TODO: 重みを目的関数にセット
         if (inp_num_session > 1):
             w_sessions = {"重複させたい":-1, "どちらでも":0, "重複させたくない":1}
             w_sessions_keys = list(w_sessions.keys())
@@ -85,8 +84,6 @@ def optimize(data: pd.DataFrame, setting):
         st.error("Step1のデータアップロード or Step2の設定を正しく実行してください")
         return None
     else:
-        # st.write(data)
-        # st.write(setting)
         if (st.button('最適化実行')):          
             results = model.main(data, setting)
             return results
@@ -103,6 +100,7 @@ def output_data(results):
         for session_id, gourp_members in opt_result.items():
             st.subheader(str(session_id)+"回目")
             model.visualize_group(members, gourp_members)
+        # TODO: 結果を所定のフォーマット(e.g. zoomブレイクアウト用等）でダウンロードさせる。
 
 def main():    
     data = input_data()
