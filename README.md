@@ -1,15 +1,9 @@
-# opt_grouping
-App to optimize grouping such as zoom breakout rooms. 
+# グループ分け最適化アプリ
+オンライン飲み会の幹事や研修担当等に任命されたはいいものの、グループ分けでお困りではないでしょうか？  
+このアプリを使えば、参加者情報を入力するだけで、以下のようなグループ分けを実現できます！
+- 参加者全員が新人と一度は話せるように複数回グループ分けを実施したい！
+- 複数セッションで男女比はそろえつつ、メンバーの被りは減らしたい！
+- 研修では同じ部署の人が被らないようにしたい！
 
-# 必要パッケージ
-```
-$ pip install pipenv
-$ pipenv install 
-```
-
-
-# 実行
-
-```
-$ pipenv run python main.py
-```
+アプリURL:  
+https://share.streamlit.io/masa-kuchii/opt_grouping/main/app.py
